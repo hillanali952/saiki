@@ -1,0 +1,50 @@
+name: Build APK
+on:
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Siapkan isi aplikasi (www)
+        run: |
+          mkdir -p www/mp
+          cp index.html app.js pipeline.js landmarks.js morph.js texture.js render.js fpk.js fmdl.js fmdlstr.js ftex.js bc3.js md5.js manifest.json icon-192.png icon-512.png www/
+          npm init -y
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6 @capacitor/filesystem@6 @capacitor/share@6 jszip@3.10.1 @mediapipe/tasks-vision@0.10.14
+          cp node_modules/jszip/dist/jszip.min.js www/jszip.min.js
+          sed -i 's#https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js#jszip.min.js#' www/index.html
+          cp node_modules/@mediapipe/tasks-vision/vision_bundle.mjs www/mp/
+          cp -r node_modules/@mediapipe/tasks-vision/wasm www/mp/wasm
+          curl -fL -o www/face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task || echo "model tidak terunduh, aplikasi akan mengambil dari internet"
+          ls -la www www/mp
+      - name: Proyek Android (Capacitor)
+        run: |
+          npx cap init "PES Face" com.pesface.app --web-dir=www
+          npx cap add android
+          npx cap sync android
+      - name: Build APK
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+      - name: Rilis APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk PESFace.apk
+          gh release create "apk-${{ github.run_number }}" PESFace.apk --title "PES Face APK #${{ github.run_number }}" --notes "Unduh PESFace.apk lalu pasang."
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PESFace-APK
+          path: PESFace.apk
