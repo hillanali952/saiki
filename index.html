@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f1420">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<title>PES Face Generator</title>
+<style>
+:root{--bg:#0f1420;--card:#171e2e;--line:#262f45;--tx:#e8ecf4;--mut:#8b96ad;--ac:#3ddc97;--ac2:#4c8dff;--bad:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,sans-serif;padding:env(safe-area-inset-top) 12px calc(24px + env(safe-area-inset-bottom))}
+h1{font-size:20px;margin:16px 0 2px}p.sub{margin:0 0 14px;color:var(--mut);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.card h2{font-size:15px;margin:0 0 8px;display:flex;gap:8px;align-items:center}
+.n{background:var(--ac);color:#06281a;border-radius:50%;width:22px;height:22px;display:inline-grid;place-items:center;font-size:12px;font-weight:700}
+button,.btn{background:var(--ac2);color:#fff;border:0;border-radius:10px;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer}
+button.g{background:var(--ac);color:#06281a}button.s{background:#2a3550}button:disabled{opacity:.45}
+input[type=file]{width:100%;color:var(--mut)}input[type=text],input[type=number]{background:#0f1420;border:1px solid var(--line);color:var(--tx);border-radius:8px;padding:9px;width:100%;font:inherit}
+label{display:block;color:var(--mut);font-size:13px;margin:8px 0 3px}.row{display:flex;gap:8px}.row>*{flex:1}
+canvas{width:100%;height:auto;border-radius:10px;background:#000;touch-action:none;display:block}
+#status{color:var(--mut);font-size:13px;min-height:18px;margin-top:6px}.ok{color:var(--ac)}.err{color:var(--bad)}
+#hist .it{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}#hist img{width:48px;height:64px;object-fit:cover;border-radius:6px;background:#000}
+#hist .t{flex:1;font-size:13px}#hist button{padding:7px 10px;font-size:13px}
+small{color:var(--mut)}pre{white-space:pre-wrap;font-size:11px;color:var(--mut);margin:6px 0 0;max-height:130px;overflow:auto}
+</style></head><body>
+<h1>PES Face Generator</h1>
+<p class="sub">Foto → wajah PES 2021 PC. Semua diproses di HP Anda; foto tidak diunggah ke server.</p>
+
+<div class="card"><h2><span class="n">1</span>Template wajah</h2>
+<small>Pilih zip wajah PES 2021 yang sudah jalan di game (berisi face.fpk). Cukup sekali, disimpan di perangkat.</small>
+<input id="tplFile" type="file" accept=".zip" style="margin-top:8px"><div id="tplInfo" class="ok"></div></div>
+
+<div class="card"><h2><span class="n">2</span>Foto &amp; titik wajah</h2>
+<input id="photoFile" type="file" accept="image/*">
+<canvas id="cv" width="640" height="480" style="margin-top:8px"></canvas>
+<div class="row" style="margin-top:8px"><button id="btnDetect" class="s" disabled>Deteksi otomatis</button><button id="btnReset" class="s" disabled>Tandai mata</button><button id="btnView" class="s" disabled>Lihat semua</button></div>
+<div id="status"></div><small><b>Periksa titik sebelum membuat wajah.</b> Kalau deteksi otomatis gagal, ketuk MATA KIRI lalu MATA KANAN pada foto, lalu geser titik hijau agar pas di alis, hidung, sudut mulut, dagu, dan rahang. Foto depan, ekspresi netral, cahaya rata paling bagus.</small></div>
+
+<div class="card"><h2><span class="n">3</span>Opsi</h2>
+<div class="row"><div><label>ID wajah (angka)</label><input id="faceId" type="number" inputmode="numeric" value="990001"></div>
+<div><label>Nama folder tekstur</label><input id="faceName" type="text" value="FACE_990001"></div></div>
+<label>Kekuatan perubahan bentuk: <b id="strVal">60</b>%</label><input id="strength" type="range" min="0" max="100" value="60" style="width:100%">
+<label style="display:flex;gap:8px;align-items:center"><input id="keepLips" type="checkbox"> Pakai mulut dari template (bukan dari foto)</label></div>
+
+<div class="card"><h2><span class="n">4</span>Hasil</h2>
+<button id="btnGo" class="g" disabled style="width:100%">Buat wajah</button><div id="gstatus" style="color:var(--mut);font-size:13px;margin-top:6px;min-height:18px"></div>
+<canvas id="pv" width="469" height="640" style="margin-top:10px;display:none"></canvas>
+<button id="btnZip" style="width:100%;margin-top:8px;display:none">Unduh ZIP</button>
+<button id="btnShare" class="s" style="width:100%;margin-top:8px;display:none">Bagikan / simpan lewat menu</button>
+<pre id="log"></pre></div>
+
+<div class="card"><h2>Riwayat</h2><div id="hist"><small>Belum ada.</small></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="module" src="app.js"></script>
+</body></html>
